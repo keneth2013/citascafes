@@ -24,4 +24,9 @@ app.get('/', (req, res, next) => {
 })
 
 
-app.listen(3000)
+const PORT = process.env.PORT  || 3000
+
+;
+app.listen(PORT, function() {
+  console.log('Servidor en el port ', PORT);
+})
