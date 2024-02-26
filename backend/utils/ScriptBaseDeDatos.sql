@@ -14,15 +14,56 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+
+-- Volcando estructura de base de datos para catacitas
+CREATE DATABASE IF NOT EXISTS `catacitas` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `catacitas`;
+
+-- Volcando estructura para tabla catacitas.cita
+CREATE TABLE IF NOT EXISTS `cita` (
+  `idCita` int NOT NULL AUTO_INCREMENT,
+  `estado` int NOT NULL,
+  `fecha_creacion` date NOT NULL,
+  `fecha` date NOT NULL,
+  `hora` time NOT NULL,
+  `duracion` int NOT NULL,
+  `idCliente` int NOT NULL,
+  `idBarbero` int NOT NULL,
+  `total_pagar` float DEFAULT NULL,
+  `nombreProductor` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`idCita`),
+  KEY `idCliente` (`idCliente`),
+  KEY `idBarbero` (`idBarbero`),
+  CONSTRAINT `cita_ibfk_1` FOREIGN KEY (`idCliente`) REFERENCES `usuario` (`idUsuario`),
+  CONSTRAINT `cita_ibfk_2` FOREIGN KEY (`idBarbero`) REFERENCES `usuario` (`idUsuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- Volcando datos para la tabla catacitas.cita: ~2 rows (aproximadamente)
 INSERT INTO `cita` (`idCita`, `estado`, `fecha_creacion`, `fecha`, `hora`, `duracion`, `idCliente`, `idBarbero`, `total_pagar`, `nombreProductor`) VALUES
 	(23, 0, '2024-02-26', '2024-02-26', '09:01:00', 60, 3, 5, 120, 'Juan Perez'),
 	(24, 3, '2024-02-26', '2024-02-26', '13:05:00', 60, 3, 2, 120, 'luisa martinez');
 
+-- Volcando estructura para tabla catacitas.cita_servicio
+CREATE TABLE IF NOT EXISTS `cita_servicio` (
+  `idCita` int NOT NULL,
+  `idServicio` int NOT NULL,
+  PRIMARY KEY (`idCita`,`idServicio`),
+  KEY `idServicio` (`idServicio`),
+  CONSTRAINT `cita_servicio_ibfk_1` FOREIGN KEY (`idCita`) REFERENCES `cita` (`idCita`),
+  CONSTRAINT `cita_servicio_ibfk_2` FOREIGN KEY (`idServicio`) REFERENCES `servicio` (`idServicio`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- Volcando datos para la tabla catacitas.cita_servicio: ~2 rows (aproximadamente)
 INSERT INTO `cita_servicio` (`idCita`, `idServicio`) VALUES
 	(23, 2),
 	(24, 2);
+
+-- Volcando estructura para tabla catacitas.dia
+CREATE TABLE IF NOT EXISTS `dia` (
+  `idDia` int NOT NULL AUTO_INCREMENT,
+  `dia` varchar(45) NOT NULL,
+  PRIMARY KEY (`idDia`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcando datos para la tabla catacitas.dia: ~7 rows (aproximadamente)
 INSERT INTO `dia` (`idDia`, `dia`) VALUES
@@ -33,6 +74,20 @@ INSERT INTO `dia` (`idDia`, `dia`) VALUES
 	(5, 'Viernes'),
 	(6, 'Sabado'),
 	(7, 'Domingo');
+
+-- Volcando estructura para tabla catacitas.horario
+CREATE TABLE IF NOT EXISTS `horario` (
+  `idHorario` int NOT NULL AUTO_INCREMENT,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `idBarbero` int NOT NULL,
+  `idDia` int NOT NULL,
+  PRIMARY KEY (`idHorario`),
+  KEY `idBarbero` (`idBarbero`),
+  KEY `idDia` (`idDia`),
+  CONSTRAINT `horario_ibfk_1` FOREIGN KEY (`idBarbero`) REFERENCES `usuario` (`idUsuario`),
+  CONSTRAINT `horario_ibfk_2` FOREIGN KEY (`idDia`) REFERENCES `dia` (`idDia`)
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcando datos para la tabla catacitas.horario: ~28 rows (aproximadamente)
 INSERT INTO `horario` (`idHorario`, `hora_inicio`, `hora_fin`, `idBarbero`, `idDia`) VALUES
@@ -65,15 +120,53 @@ INSERT INTO `horario` (`idHorario`, `hora_inicio`, `hora_fin`, `idBarbero`, `idD
 	(28, '08:00:00', '16:00:00', 9, 4),
 	(29, '08:00:00', '16:00:00', 9, 5);
 
+-- Volcando estructura para tabla catacitas.rol
+CREATE TABLE IF NOT EXISTS `rol` (
+  `idRol` int NOT NULL,
+  `nombre` varchar(30) NOT NULL,
+  PRIMARY KEY (`idRol`),
+  UNIQUE KEY `idRol` (`idRol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- Volcando datos para la tabla catacitas.rol: ~3 rows (aproximadamente)
 INSERT INTO `rol` (`idRol`, `nombre`) VALUES
 	(1, 'cliente'),
 	(2, 'barbero'),
 	(3, 'admin');
 
+-- Volcando estructura para tabla catacitas.servicio
+CREATE TABLE IF NOT EXISTS `servicio` (
+  `idServicio` int NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(45) NOT NULL,
+  `duracion` int NOT NULL,
+  `imagen` varchar(200) DEFAULT NULL,
+  `precio` float DEFAULT NULL,
+  PRIMARY KEY (`idServicio`),
+  UNIQUE KEY `idServicio` (`idServicio`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- Volcando datos para la tabla catacitas.servicio: ~1 rows (aproximadamente)
 INSERT INTO `servicio` (`idServicio`, `nombre`, `duracion`, `imagen`, `precio`) VALUES
 	(2, 'Servicio Tecnico', 60, 'https://www.menshairstyletrends.com/wp-content/uploads/2020/02/taper-fade-handsome_ransom-819x1024.jpg', 120);
+
+-- Volcando estructura para tabla catacitas.usuario
+CREATE TABLE IF NOT EXISTS `usuario` (
+  `idUsuario` int NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(45) NOT NULL,
+  `ap_paterno` varchar(45) NOT NULL,
+  `ap_materno` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `password` varchar(256) NOT NULL,
+  `telefono` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `foto` varchar(100) DEFAULT NULL,
+  `estado` int NOT NULL,
+  `idRol` int NOT NULL,
+  PRIMARY KEY (`idUsuario`),
+  UNIQUE KEY `idUsuario` (`idUsuario`),
+  UNIQUE KEY `email` (`email`),
+  KEY `idRol` (`idRol`),
+  CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`idRol`) REFERENCES `rol` (`idRol`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcando datos para la tabla catacitas.usuario: ~7 rows (aproximadamente)
 INSERT INTO `usuario` (`idUsuario`, `nombre`, `ap_paterno`, `ap_materno`, `email`, `password`, `telefono`, `foto`, `estado`, `idRol`) VALUES
